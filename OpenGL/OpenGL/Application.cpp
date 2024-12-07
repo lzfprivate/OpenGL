@@ -137,11 +137,32 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     //组织了一组数据，但计算机不知道怎么去使用
-    float postions[6] = {
-        -0.5f, -0.5f,
-        0.0f, 0.0f,
-        0.5f, -0.5f
+    float postions[] = {
+        //添加了另一组三角形坐标轴的数据，数据冗余引出坐标缓冲区
+        -0.5f, -0.5f,           //0
+        -0.5f, 0.0f,            //1
+        0.5f, 0.0f,             //2
+        0.5f, -0.5f             //3
     };
+
+    //创建一个索引
+    unsigned int indices[] = {
+        0,1,2,          //postion数组组成的坐标代号
+        0,2,3
+    };
+
+    //创建索引缓冲区
+    unsigned int ibo;       //index buffer object
+    //创建一个缓冲区
+    glGenBuffers(1, &ibo);
+    //绑定缓冲区
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    //缓冲区添加数据
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * sizeof(indices), indices, GL_STATIC_DRAW);
+
+
+
+
 
     unsigned int buffer;
     //创建一个缓冲区
@@ -162,8 +183,6 @@ int main(void)
 
     //ShaderSource source = ParserShader("res/shader/Basic.shader");
     ShaderSource source = ParserShader("./Basic.shader");
-    std::cout << source.vertexSource << std::endl;
-    std::cout << source.fragmentSource << std::endl;
 
 
     unsigned int shader = CreateShader(source.vertexSource, source.fragmentSource);
@@ -176,7 +195,11 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
         //绘制数据，可以显示图形，在上面我们手动设置了顶点着色器和片段着色器
-        glDrawArrays(GL_TRIANGLES, 0, 3);       
+
+        //绘制两个三角形，成为一个矩形  
+        //glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
