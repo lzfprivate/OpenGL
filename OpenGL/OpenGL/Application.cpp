@@ -5,12 +5,49 @@
 #include <string>
 #include <sstream>
 
+#ifndef ASSERT(x)
+#define ASSERT(x) if(!(x)) __debugbreak();
+#endif // !ASSERT
+
+#ifndef GLCall(x)
+#define GLCall(x) GLClearError();\
+x;\
+ASSERT(GLLogCall(#x,__FILE__,__LINE__))
+
+#endif // !ASSERT
+
+
 
 struct ShaderSource
 {
     std::string vertexSource;
     std::string fragmentSource;
 };
+
+//清除所有的错误
+static void GLClearError()
+{
+    while (glGetError() != GL_NO_ERROR);
+}
+
+static void GLCheckError()
+{
+    while (GLenum num = glGetError())
+        std::cout << "OPENGL ERROR : " << num << std::endl;
+}
+
+static bool GLLogCall(const char* function ,const char* file,int line)
+{
+    while (GLenum error = glGetError())
+    {
+        std::cout << "OPENGL ERROR : " << error << 
+            "function" << function <<
+            " line" << line <<
+            " file" << file << std::endl;
+        return false;
+    }
+    return true;
+}
 
 //从文件中读取着色器字符串
 static ShaderSource ParserShader(const std::string& filepath)
@@ -161,9 +198,6 @@ int main(void)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * sizeof(indices), indices, GL_STATIC_DRAW);
 
 
-
-
-
     unsigned int buffer;
     //创建一个缓冲区
     glGenBuffers(1, &buffer);
@@ -198,9 +232,10 @@ int main(void)
 
         //绘制两个三角形，成为一个矩形  
         //glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-
+        //绘制前确保所有的错误己经被清除了
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr));
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
