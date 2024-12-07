@@ -14,7 +14,7 @@
 x;\
 ASSERT(GLLogCall(#x,__FILE__,__LINE__))
 
-#endif // !ASSERT
+#endif // !GLCall
 
 
 
@@ -155,6 +155,10 @@ int main(void)
     if (!glfwInit())
         return -1;
 
+    glfwInitHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwInitHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwInitHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 
     
     /* Create a windowed mode window and its OpenGL context */
@@ -165,8 +169,13 @@ int main(void)
         return -1;
     }
 
+   
+
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+
+    //同步分辨率
+    glfwSwapInterval(1);
 
     if (GLEW_OK != glewInit())
         std::cout << "glew init error" << std::endl;
@@ -191,27 +200,32 @@ int main(void)
     //创建索引缓冲区
     unsigned int ibo;       //index buffer object
     //创建一个缓冲区
-    glGenBuffers(1, &ibo);
+    GLCall(glGenBuffers(1, &ibo));
     //绑定缓冲区
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
     //缓冲区添加数据
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * sizeof(indices), indices, GL_STATIC_DRAW);
+    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * sizeof(indices), indices, GL_STATIC_DRAW));
 
+    //创建顶点缓冲区
+    unsigned int vao;      //vertex array object
+    GLCall(glGenVertexArrays(1, &vao));
+    GLCall(glBindVertexArray(vao));
+  
 
     unsigned int buffer;
     //创建一个缓冲区
-    glGenBuffers(1, &buffer);
+    GLCall(glGenBuffers(1, &buffer));
     //绑定缓冲区
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
     //缓冲区添加数据
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * sizeof(postions),postions,GL_STATIC_DRAW);
+    GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(float) * sizeof(postions),postions,GL_STATIC_DRAW));
     
     //确保数据可用
-    glEnableVertexAttribArray(0);
+    GLCall((glEnableVertexAttribArray(0)));
     //通知opengl如何使用数据
     // 第二个参数：缓冲区的数据以多少个为一组 ，当前为二维坐标，所以是2
     //最后一个参数:当前只有坐标一个属性，所以当前的偏移量为0
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+    GLCall((glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0)));
 
     //glsl 指定顶点着色器
 
@@ -220,22 +234,49 @@ int main(void)
 
 
     unsigned int shader = CreateShader(source.vertexSource, source.fragmentSource);
-    glUseProgram(shader);
+    GLCall((glUseProgram(shader)));
+    GLCall(int location = glGetUniformLocation(shader, "u_Color"));
+    ASSERT(location != -1);
+    //从代码设置着色器的颜色
+    GLCall(glUniform4f(location, 0.8f, 0.2f, 0.3f, 1.0));
 
-    
+    float r = 0.0f;
+    float step = 0.05f;
+
+    //解绑
+    GLCall(glUseProgram(0));
+
+    GLCall(glBindVertexArray(0));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        GLCall(glClear(GL_COLOR_BUFFER_BIT));
         //绘制数据，可以显示图形，在上面我们手动设置了顶点着色器和片段着色器
 
         //绘制两个三角形，成为一个矩形  
         //glDrawArrays(GL_TRIANGLES, 0, 6);
+        if (r > 1.0f)
+        {
+            step = -0.05f;
+        }
+        else if (r < 0.0f)
+        {
+            step = 0.05f;
+        }
+        r += step;
 
+        GLCall(glUseProgram(shader));
+        GLCall(glBindVertexArray(vao));
+        GLCall(glUniform4f(location, r, 0.2f, 0.3f, 1.0));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+     
         //绘制前确保所有的错误己经被清除了
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr));
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
