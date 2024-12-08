@@ -149,6 +149,18 @@ static unsigned int CreateShader(const std::string& vertexShader,
 
 int main(void)
 {
+    //创建一个索引
+    unsigned int temp[] = {
+        0,1,2,          //postion数组组成的坐标代号
+        0,2,3
+    };
+
+    std::cout << sizeof(temp) << std::endl;
+    std::cout << sizeof(temp) * sizeof(int) << std::endl;
+    
+    return 0;
+
+
     GLFWwindow* window;
 
     /* Initialize the library */
@@ -232,7 +244,6 @@ int main(void)
     //ShaderSource source = ParserShader("res/shader/Basic.shader");
     ShaderSource source = ParserShader("./Basic.shader");
 
-
     unsigned int shader = CreateShader(source.vertexSource, source.fragmentSource);
     GLCall((glUseProgram(shader)));
     GLCall(int location = glGetUniformLocation(shader, "u_Color"));
@@ -245,7 +256,6 @@ int main(void)
 
     //解绑
     GLCall(glUseProgram(0));
-
     GLCall(glBindVertexArray(0));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
