@@ -8,53 +8,9 @@
 #include "GLVertexBuffer.h"
 #include "GLIndexBuffer.h"
 #include "GLVertexArray.h"
-
-struct ShaderSource
-{
-    std::string vertexSource;
-    std::string fragmentSource;
-};
-//从文件中读取着色器字符串
-static ShaderSource ParserShader(const std::string& filepath)
-{
-    enum class ShaderType {
-        NONE = -1,
-        VERTEX = 0,
-        FRAGMENT = 1
-    };
-    std::stringstream ss[2];
-    std::ifstream stream(filepath);
-
-    std::string line;
-
-    ShaderType type = ShaderType::NONE;
+#include "GLShader.h"
 
 
-    while (getline(stream,line))
-    {
-        if (line.find("#shader") != std::string::npos)
-        {
-            //找到#shader的字符串
-            if (line.find("vertex") != std::string::npos)
-            {
-                //找到顶点着色器
-                type = ShaderType::VERTEX;
-            }
-            else if (line.find("fragment") != std::string::npos)
-            {
-                //找到片段着色器
-                type = ShaderType::FRAGMENT;
-            }
-        }
-        else
-        {
-            ss[(int)type] << line << '\n';
-        }
-    }
-
-    return { ss[0].str(),ss[1].str() };
-
-}
 
 /// <summary>
 /// 编译着色器
@@ -62,55 +18,14 @@ static ShaderSource ParserShader(const std::string& filepath)
 /// <param name="vertexShader"></param>
 /// <param name="type">着色器类型 </param>
 /// <returns></returns>
-static int CompileShader(unsigned int type,
-    const std::string& source)
-{
-    unsigned int id = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
 
-    int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-    if (result == GL_FALSE)
-    {
-        int length;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char* message = (char*)alloca(sizeof(char) * length);
-        glGetShaderInfoLog(id, length, &length, message);
-        
-        glDeleteShader(id);
-        return 0;
-    }
-
-
-    return id;
-}
 /// <summary>
 /// 
 /// </summary>
 /// <param name="vertexShader">顶点着色器</param>
 /// <param name="fragmentShader">片段着色器</param>
 /// <returns>标识符</returns>
-static unsigned int CreateShader(const std::string& vertexShader, 
-    const std::string& fragmentShader)
-{
-    unsigned int program = glCreateProgram();
-    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return program;
-
-}
 
 int main(void)
 {
@@ -169,23 +84,17 @@ int main(void)
         CGLVertexArray va;
         va.AddBuffer(vb, vbl);
 
-        //glsl 指定顶点着色器
+        CGLShader shader("./Basic.shader");
+        shader.Bind();
+        shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.5f, 1.0f);
 
-        //ShaderSource source = ParserShader("res/shader/Basic.shader");
-        ShaderSource source = ParserShader("./Basic.shader");
-
-        unsigned int shader = CreateShader(source.vertexSource, source.fragmentSource);
-        GLCall((glUseProgram(shader)));
-        GLCall(int location = glGetUniformLocation(shader, "u_Color"));
-        ASSERT(location != -1);
-        //从代码设置着色器的颜色
-        GLCall(glUniform4f(location, 0.8f, 0.2f, 0.3f, 1.0));
 
         float r = 0.0f;
         float step = 0.05f;
 
         //解绑
         GLCall(glUseProgram(0));
+        shader.Unbind();
         va.Unbind();
         vb.Unbind();
         ib.Unbind();
@@ -209,9 +118,8 @@ int main(void)
             }
             r += step;
 
-            GLCall(glUseProgram(shader));
-            GLCall(glUniform4f(location, r, 0.2f, 0.3f, 1.0));
-
+            shader.Bind();
+            shader.SetUniform4f("u_Color", r, 0.2f, 0.3f, 1.0);
             ib.Bind();
             vb.Bind();
             va.Bind();
@@ -224,7 +132,6 @@ int main(void)
             /* Poll for and process events */
             glfwPollEvents();
         }
-        glDeleteProgram(shader);
     }
     glfwTerminate();
     return 0;
