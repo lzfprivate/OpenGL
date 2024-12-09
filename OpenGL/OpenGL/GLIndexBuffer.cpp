@@ -1,6 +1,6 @@
 #include "GLIndexBuffer.h"
 #include <GL/glew.h>
-#include "GLRenderer.h"
+#include "GLCommondef.h"
 
 CGLIndexBuffer::CGLIndexBuffer(const unsigned int* data, unsigned int count) 
 	: m_nRendererId(-1),m_nCount(count)

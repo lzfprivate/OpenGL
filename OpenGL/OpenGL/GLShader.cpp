@@ -1,5 +1,5 @@
 #include "GLShader.h"
-#include "GLRenderer.h"
+#include "GLCommondef.h"
 #include <fstream>
 #include <string>
 #include <sstream>

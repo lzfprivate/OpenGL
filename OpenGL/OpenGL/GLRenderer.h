@@ -1,22 +1,21 @@
 #pragma once
 
 #include <GL/glew.h>
+#include "GLCommondef.h"
+#include "GLShader.h"
+#include "GLIndexBuffer.h"
+#include "GLVertexArray.h"
+
+class CGLRenderer
+{
+public:
+	CGLRenderer();
+	~CGLRenderer();
+
+public:
+	void Clear();
+	void Draw(const CGLShader& shader, const CGLIndexBuffer& ib, const CGLVertexArray& va);
+
+};
 
 
-#ifndef ASSERT(x)
-#define ASSERT(x) if(!(x)) __debugbreak();
-#endif // !ASSERT
-
-#ifndef GLCall(x)
-#define GLCall(x) GLClearError();\
-x;\
-ASSERT(GLLogCall(#x,__FILE__,__LINE__))
-
-#endif // !GLCall
-
-//清除所有的错误
-void GLClearError();
-//检查是否有错误 
-void GLCheckError();
-//输出日志信息
-bool GLLogCall(const char* function, const char* file, int line);

@@ -1,5 +1,5 @@
 #include "GLVertexArray.h"
-#include "GLRenderer.h"
+#include "GLCommondef.h"
 
 CGLVertexArray::CGLVertexArray()
 {
@@ -44,6 +44,4 @@ void CGLVertexArray::AddBuffer(const CGLVertexBuffer& vb, const CGLVertexBufferL
 		GLCall((glVertexAttribPointer(i, element.count, element.type, element.normalized ? GL_TRUE : GL_FALSE,layout.GetStride(), (const char*)offset)));
 		offset += element.count * LayoutElements::GetSizeofType(element.type);
 	}
-  
-
 }

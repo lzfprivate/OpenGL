@@ -1,7 +1,8 @@
 #pragma once
 #include <vector>
 #include <GL/glew.h>
-#include "GLRenderer.h"
+#include "GLCommondef.h"
+
 
 struct LayoutElements
 {

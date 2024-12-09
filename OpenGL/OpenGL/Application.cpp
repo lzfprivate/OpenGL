@@ -11,22 +11,6 @@
 #include "GLShader.h"
 
 
-
-/// <summary>
-/// 编译着色器
-/// </summary>
-/// <param name="vertexShader"></param>
-/// <param name="type">着色器类型 </param>
-/// <returns></returns>
-
-/// <summary>
-/// 
-/// </summary>
-/// <param name="vertexShader">顶点着色器</param>
-/// <param name="fragmentShader">片段着色器</param>
-/// <returns>标识符</returns>
-
-
 int main(void)
 {
     GLFWwindow* window;
@@ -88,12 +72,13 @@ int main(void)
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.5f, 1.0f);
 
+        CGLRenderer renderer;
+
 
         float r = 0.0f;
         float step = 0.05f;
 
         //解绑
-        GLCall(glUseProgram(0));
         shader.Unbind();
         va.Unbind();
         vb.Unbind();
@@ -103,11 +88,9 @@ int main(void)
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
-            GLCall(glClear(GL_COLOR_BUFFER_BIT));
+            renderer.Clear();
             //绘制数据，可以显示图形，在上面我们手动设置了顶点着色器和片段着色器
-
-            //绘制两个三角形，成为一个矩形  
-            //glDrawArrays(GL_TRIANGLES, 0, 6);
+            renderer.Draw(shader,ib,va);
             if (r > 1.0f)
             {
                 step = -0.05f;
@@ -125,7 +108,7 @@ int main(void)
             va.Bind();
             //绘制前确保所有的错误己经被清除了
             //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-            GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+           
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
 
