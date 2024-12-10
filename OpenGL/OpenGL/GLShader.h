@@ -24,7 +24,8 @@ public:
 
 	//set uniform
 	void SetUniform4f(const std::string& name, float f0, float f1, float f2, float f3);
-	//TODO:设置其他格式的内容 
+	void SetUniform1i(const std::string& name, int value);
+	//TODO:设置其他格式的内容
 private:
 	//获取uniform的标识符
 	int GetUniformLocation(const std::string& name);
