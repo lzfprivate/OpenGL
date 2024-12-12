@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-#ifndef ASSERT(x)
+#ifndef ASSERT(x) 
 #define ASSERT(x) if(!(x)) __debugbreak();
 #endif // !ASSERT
 

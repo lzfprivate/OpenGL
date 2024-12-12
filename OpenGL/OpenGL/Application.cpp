@@ -10,6 +10,8 @@
 #include "GLVertexArray.h"
 #include "GLShader.h"
 #include "GLTexture.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 
 int main(void)
@@ -21,7 +23,7 @@ int main(void)
         return -1;
 
     glfwInitHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwInitHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwInitHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwInitHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
@@ -46,14 +48,14 @@ int main(void)
     if (GLEW_OK != glewInit())
         std::cout << "glew init error" << std::endl;
     {
-        //组织了一组数据，但计算机不知道怎么去使用
         float postions[] =
         {
-            -0.5f,  -0.5f,  0.0f,   0.0f,           //0
-            -0.5f,  0.0f,   1.0f,   0.0f,          //1
-            0.5f,   0.0f,   1.0f,   1.0f,             //2
-            0.5f,   -0.5f,  1.0f,   0.0f            //3
+            -0.75f,  -0.75f,  0.0f,   0.0f,           //0
+            -0.75f,  0.0f,   1.0f,   0.0f,          //1
+            0.0f,   0.0f,   1.0f,   1.0f,             //2
+            0.0f,   -0.75f,  0.0f,   1.0f            //3
         };
+
 
         //创建一个索引
         unsigned int indices[] = {
@@ -63,7 +65,7 @@ int main(void)
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-        CGLVertexBuffer vb(postions, sizeof(float) * 16);
+        CGLVertexBuffer vb(postions, sizeof(postions));
         CGLIndexBuffer ib(indices, 6);
         CGLVertexBufferLayout layout;
         layout.Push<float>(2);
@@ -71,10 +73,14 @@ int main(void)
 
         CGLVertexArray va;
         va.AddBuffer(vb, layout);
+        //4:3 2.0 : 1.5
+        glm::mat4 proj = glm::ortho(-0.6f, 0.60f, -0.4f, 0.4f, -1.0f, 1.0f);
 
         CGLShader shader("./Basic.shader");
         shader.Bind();
         //shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.5f, 1.0f);
+
+        shader.SetUniformMat4("u_MVP", proj);
 
         CGLRenderer renderer;
 
