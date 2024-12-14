@@ -12,6 +12,8 @@
 #include "GLTexture.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw_gl3.h>
 
 
 int main(void)
@@ -51,9 +53,9 @@ int main(void)
         float postions[] =
         {
             100.0f,  100.0f,  0.0f,   0.0f,           //0
-            300.0f,  100.0f,   1.0f,   0.0f,          //1
-            300.0f,  300.0f,   1.0f,   1.0f,             //2
-            100.0f,  300.0f,  0.0f,   1.0f            //3
+            200.0f,  100.0f,   1.0f,   0.0f,          //1
+            200.0f,  200.0f,   1.0f,   1.0f,             //2
+            100.0f,  200.0f,  0.0f,   1.0f            //3
         };
 
 
@@ -74,24 +76,27 @@ int main(void)
         CGLVertexArray va;
         va.AddBuffer(vb, layout);
         //4:3 2.0 : 1.5
-        glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 480.0f, -1.0f, 1.0f);
-        glm::vec4 vp(100.f, 100.f, 0.0f, 1.0f); 
-        
+        glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+        //glm::vec4 vp(100.f, 100.f, 0.0f, 1.0f); 
         //相机(视图矩阵)，将所有的物体向右移动100个单位
-        glm::mat4 view = glm::translate(glm::mat4(1.0), glm::vec3(-100.0f,0.0f,0.0f));   
-        glm::mat4 model = glm::translate(glm::mat4(1.0), glm::vec3(200, 200, 0));   
-        //视图/模型矩阵
-        glm::mat2 mvp = proj * view * model;    
+        glm::mat4 view = glm::translate(glm::mat4(1.0), glm::vec3(-1.0f,0.0f,0.0f));
+        
 
-        glm::vec4 result = proj * vp;
+        //glm::vec4 result = proj * vp;
+
+        glm::vec3 translation(200.0f, 200.0f, 0.0f);
 
         CGLShader shader("./Basic.shader");
         shader.Bind();
         //shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.5f, 1.0f);
 
-        shader.SetUniformMat4("u_MVP", mvp);
-
         CGLRenderer renderer;
+
+        ImGui::CreateContext(); 
+        
+        ImGui_ImplGlfwGL3_Init(window, true);
+        ImGui::StyleColorsDark();
+
 
         CGLTexture texture("../Res/1.png");
         //CGLTexture texture("F:/GitProject/Opengl/OpenGL/Res/1.png");
@@ -114,6 +119,15 @@ int main(void)
             /* Render here */
             renderer.Clear();
 
+            //创建新帧
+            ImGui_ImplGlfwGL3_NewFrame();
+
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+            //视图/模型矩阵
+            glm::mat2 mvp = proj * view * model;
+
+           
+
             //绘制数据，可以显示图形，在上面我们手动设置了顶点着色器和片段着色器
             
             if (r > 1.0f)
@@ -126,14 +140,31 @@ int main(void)
             }
             r += step;
 
+
+          
+
             shader.Bind();
             shader.SetUniform4f("u_Color", r, 0.2f, 0.3f, 1.0);
             texture.Bind();
-            shader.SetUniform1i("u_Texture", 0);
+            //shader.SetUniform1i("u_Texture", 0);
+            shader.SetUniformMat4("u_MVP", mvp);
             ib.Bind();
             vb.Bind();
             va.Bind();
             renderer.Draw(shader, ib, va);
+
+            {
+                ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+                ImGui::SliderFloat3("Translation", &translation.y, 0.0f, 540.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+                ImGui::SliderFloat3("Translation", &translation.z, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            }
+
+            ImGui::Render();
+            ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+
+            
+
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
 
@@ -141,6 +172,8 @@ int main(void)
             glfwPollEvents();
         }
     }
+    ImGui_ImplGlfwGL3_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
     return 0;
 }
