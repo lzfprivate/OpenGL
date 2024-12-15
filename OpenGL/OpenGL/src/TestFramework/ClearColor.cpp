@@ -28,4 +28,25 @@ namespace test
 	{
 		ImGui::ColorEdit4("setcolor", m_colorClear);
 	}
+	CTestMenu::CTestMenu(TestFramework::Test*& instance)
+		: m_testCurr(instance)
+	{
+	}
+	CTestMenu::~CTestMenu()
+	{
+	}
+
+	void CTestMenu::onImGuiRender()
+	{
+		for (auto& task : m_vecTask)
+		{
+			
+		}
+		for (auto& iter : m_vecTask)
+		{
+			if (ImGui::Button(iter.first.c_str()))
+				m_testCurr = iter.second();
+			
+		}
+	}
 }

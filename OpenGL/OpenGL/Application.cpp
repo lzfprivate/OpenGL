@@ -56,7 +56,11 @@ int main(void)
 
         CGLRenderer renderer;
         
-        test::CClearColor testColor;
+        TestFramework::Test* testCurr = nullptr;
+        test::CTestMenu* testMenu = new test::CTestMenu(testCurr);
+        testCurr = testMenu;
+
+        testMenu->registerTaskInstance<test::CClearColor>("ClearColor");
 
         ImGui::CreateContext(); 
         
@@ -66,14 +70,25 @@ int main(void)
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
+            GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
             renderer.Clear();
 
-            testColor.onUpdate(0.0f);
-            testColor.onRender();
-
+           
             //´´½¨ÐÂÖ¡
             ImGui_ImplGlfwGL3_NewFrame();
-            testColor.onImGuiRender();
+            if (testCurr)
+            {
+                testCurr->onUpdate(0.0f);
+                testCurr->onRender();
+                ImGui::Begin("Test");
+                if (testCurr != testMenu && ImGui::Button("<-"))
+                {
+                    delete testCurr;
+                    testCurr = testMenu;
+                }
+                testCurr->onImGuiRender();
+                ImGui::End();
+            }
 
             ImGui::Render();
             ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
