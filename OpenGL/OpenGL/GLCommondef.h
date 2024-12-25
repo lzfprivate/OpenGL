@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <GL/glew.h>
+#include <glad.h>
 #include <iostream>
 
 

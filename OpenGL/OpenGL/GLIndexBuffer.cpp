@@ -1,5 +1,5 @@
 #include "GLIndexBuffer.h"
-#include <GL/glew.h>
+#include <glad.h>
 #include "GLCommondef.h"
 
 CGLIndexBuffer::CGLIndexBuffer(const unsigned int* data, unsigned int count) 

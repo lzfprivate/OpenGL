@@ -1,6 +1,4 @@
 #include <iostream>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -10,11 +8,12 @@
 #include "GLVertexArray.h"
 #include "GLShader.h"
 #include "GLTexture.h"
+#include <glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw_gl3.h>
-#include <TestFramework/ClearColor.h>
+//#include <imgui/imgui.h>
+//#include <ImGui/examples/opengl3_example/imgui_impl_glfw_gl3.h>
 
 
 int main(void)
@@ -48,7 +47,7 @@ int main(void)
     //同步分辨率
     glfwSwapInterval(1);
 
-    if (GLEW_OK != glewInit())
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         std::cout << "glew init error" << std::endl;
     {
         GLCall(glEnable(GL_BLEND));
@@ -56,16 +55,16 @@ int main(void)
 
         CGLRenderer renderer;
         
-        TestFramework::Test* testCurr = nullptr;
-        test::CTestMenu* testMenu = new test::CTestMenu(testCurr);
-        testCurr = testMenu;
+        //TestFramework::Test* testCurr = nullptr;
+        //test::CTestMenu* testMenu = new test::CTestMenu(testCurr);
+        //testCurr = testMenu;
 
-        testMenu->registerTaskInstance<test::CClearColor>("ClearColor");
+        //testMenu->registerTaskInstance<test::CClearColor>("ClearColor");
 
-        ImGui::CreateContext(); 
+        //ImGui::CreateContext(); 
         
-        ImGui_ImplGlfwGL3_Init(window, true);
-        ImGui::StyleColorsDark();
+        //ImGui_ImplGlfwGL3_Init(window, true);
+        //ImGui::StyleColorsDark();
 
         while (!glfwWindowShouldClose(window))
         {
@@ -75,23 +74,23 @@ int main(void)
 
            
             //创建新帧
-            ImGui_ImplGlfwGL3_NewFrame();
-            if (testCurr)
-            {
-                testCurr->onUpdate(0.0f);
-                testCurr->onRender();
-                ImGui::Begin("Test");
-                if (testCurr != testMenu && ImGui::Button("<-"))
-                {
-                    delete testCurr;
-                    testCurr = testMenu;
-                }
-                testCurr->onImGuiRender();
-                ImGui::End();
-            }
+            //ImGui_ImplGlfwGL3_NewFrame();
+            //if (testCurr)
+            //{
+            //    testCurr->onUpdate(0.0f);
+            //    testCurr->onRender();
+            //    ImGui::Begin("Test");
+            //    if (testCurr != testMenu && ImGui::Button("<-"))
+            //    {
+            //        delete testCurr;
+            //        testCurr = testMenu;
+            //    }
+            //    testCurr->onImGuiRender();
+            //    ImGui::End();
+            //}
 
-            ImGui::Render();
-            ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+            //ImGui::Render();
+            //ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
@@ -100,8 +99,8 @@ int main(void)
             glfwPollEvents();
         }
     }
-    ImGui_ImplGlfwGL3_Shutdown();
-    ImGui::DestroyContext();
+    //ImGui_ImplGlfwGL3_Shutdown();
+    //ImGui::DestroyContext();
     glfwTerminate();
     return 0;
 }

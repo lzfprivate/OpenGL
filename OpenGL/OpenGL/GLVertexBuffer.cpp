@@ -1,5 +1,5 @@
 #include "GLVertexBuffer.h"
-#include <GL/glew.h>
+#include <glad.h>
 #include "GLRenderer.h"
 
 CGLVertexBuffer::CGLVertexBuffer(const void* data, unsigned int size) 

@@ -18,11 +18,5 @@ public:
 
 	inline int GetWidth() const { return m_iWidth; }
 	inline int GetHeight() const { return m_iHeight; }
-
-
-
-
-
-
 };
 
