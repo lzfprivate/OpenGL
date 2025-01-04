@@ -76,6 +76,10 @@ void Shader::use()
 {
 	glUseProgram(m_nProgram);
 }
+void Shader::setValue1i(const std::string& name, int value)
+{
+	glUniform1i(glGetUniformLocation(m_nProgram, name.c_str()), value);
+}
 void Shader::setVec3f(const std::string& name, float v0, float v1, float v2)
 {
 	glUniform3f(glGetUniformLocation(m_nProgram, name.c_str()), v0, v1, v2);

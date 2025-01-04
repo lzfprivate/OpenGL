@@ -150,21 +150,26 @@ int main()
 		shaderObject.setVec3f("objectColor", 1.0f, 0.5f, 0.31f);
 		shaderObject.setVec3f("lightColor", 1.0f, 1.0f, 1.0f);
 		shaderObject.setVec3f("lightPos", 1.2f, 1.0f, 2.0f);
+		shaderObject.setVec3f("material.ambient", 1.0f, 0.5f, 0.31f);
+		shaderObject.setVec3f("material.diffuse", 1.0f, 0.5f, 0.31f);
+		shaderObject.setVec3f("material.specular", 0.5f, 0.5f, 0.5f);	
+		shaderObject.setValue1i("material.shininess", 32);
 
-		glm::mat4 projection = glm::perspective(glm::radians(g_camera.mouseDegree()),
+		glm::mat4 projection = glm::perspective(glm::radians(g_camera.Zoom),
 			(float)(SCREEN_WIDTH / SCREEN_HEIGHT), 0.1f, 100.0f);
-		glm::mat3 view = g_camera.getCameraMat4();
+		glm::mat3 view = g_camera.GetViewMatrix();
 
 		glm::mat4 model = glm::mat4(1.0);
 		shaderObject.setMat4f("model", model);
 		shaderObject.setMat4f("view", view);
 		shaderObject.setMat4f("projection", projection);
-
+		shaderObject.setVec3f("viewPos", g_camera.Position.x, g_camera.Position.y, g_camera.Position.z);
+		shaderObject.setVec3f("light.ambient", 0.2f, 0.2f, 0.2f);
+		shaderObject.setVec3f("light.diffuse", 0.5f, 0.5f, 0.5f);
+		shaderObject.setVec3f("light.specular", 1.0f, 1.0f, 1.0f);
 		glBindVertexArray(nVao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	
-
-
 		shaderLight.setMat4f("view", view);
 		shaderLight.setMat4f("projection", projection);
 		model = glm::translate(model, lightPos);
@@ -201,22 +206,22 @@ void keyboard_callback(GLFWwindow* window)
 	if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_W))
 	{
 		//向上移动
-		g_camera.processKeyBoardPressed((unsigned int)enumDirect::UP, g_fDeltaTime);
+		g_camera.ProcessKeyboard(Camera_Movement::FORWARD, g_fDeltaTime);
 	}
 	if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_S))
 	{
 		//向下移动
-		g_camera.processKeyBoardPressed((unsigned int)enumDirect::DOWN, g_fDeltaTime);
+		g_camera.ProcessKeyboard(Camera_Movement::BACKWARD, g_fDeltaTime);
 	}
 	if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_A))
 	{
 		//向左移动
-		g_camera.processKeyBoardPressed((unsigned int)enumDirect::LEFT, g_fDeltaTime);
+		g_camera.ProcessKeyboard(Camera_Movement::LEFT, g_fDeltaTime);
 	}
 	if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_D))
 	{
 		//向右移动
-		g_camera.processKeyBoardPressed((unsigned int)enumDirect::RIGHT, g_fDeltaTime);
+		g_camera.ProcessKeyboard(Camera_Movement::RIGHT, g_fDeltaTime);
 	}
 }
 
@@ -237,10 +242,10 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos)
 	g_fLastX = xValue;
 	g_fLastY = yValue;
 
-	g_camera.processMouseClicked(xOffset, yOffset);
+	g_camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	g_camera.processMouseScroll(static_cast<float>(yoffset));
+	g_camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
