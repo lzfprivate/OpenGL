@@ -107,64 +107,70 @@ int main()
 	}
 
 	glEnable(GL_DEPTH_TEST);
-
+	Shader shaderObject("objectVertex.shader", "objectFragment.shader");
+	Shader shaderLight("lightVertex.shader", "lightFragment.shader");
 	unsigned int nVao, nVbo;
 	
 	glGenVertexArrays(1, &nVao);
+	glGenBuffers(1, &nVbo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, nVbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_pos), g_pos, GL_STATIC_DRAW);
 	
 	glBindVertexArray(nVao);
 
-	glGenBuffers(1, &nVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, nVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_pos), g_pos, GL_STATIC_DRAW);
-
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)(sizeof(float) * 3));
 	glEnableVertexAttribArray(1);
 
-	Shader shaderObject("objectVertex.shader","objectFragment.shader");
-	shaderObject.use();
-	
 	unsigned int nVaoLight;
 	glGenVertexArrays(1, &nVaoLight);
+	glBindVertexArray(nVaoLight);
+
+	glBindBuffer(GL_ARRAY_BUFFER, nVbo);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)0);
 	glEnableVertexAttribArray(0);
-
-	Shader shaderLight("lightVertex.shader", "lightFragment.shader");
-	shaderLight.use();
+	
+	
 
 	while (!glfwWindowShouldClose(window))
 	{
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		float currentFrame = static_cast<float>(glfwGetTime());
+		g_fDeltaTime = currentFrame - g_fDeltaTime;
+		g_lastFrame = currentFrame;
 
 		keyboard_callback(window);
 
-		shaderObject.use();
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		shaderObject.setVec3f("objectColor", 1.0f, 0.5f, 0.31f);
+		shaderObject.setVec3f("lightColor", 1.0f, 1.0f, 1.0f);
+		shaderObject.setVec3f("lightPos", 1.2f, 1.0f, 2.0f);
 
 		glm::mat4 projection = glm::perspective(glm::radians(g_camera.mouseDegree()),
 			(float)(SCREEN_WIDTH / SCREEN_HEIGHT), 0.1f, 100.0f);
-		glm::mat3 view = glm::mat4(1.0f);
+		glm::mat3 view = g_camera.getCameraMat4();
 
 		glm::mat4 model = glm::mat4(1.0);
-		shaderObject.setMat4f("model", glm::value_ptr(model));
-		shaderObject.setMat4f("view", glm::value_ptr(view));
-		shaderObject.setMat4f("projection", glm::value_ptr(projection));
-		shaderObject.setVec3f("objectColor", 1.0f, 0.5f, 0.31f);
-		shaderObject.setVec3f("lightColor", 1.0f, 1.0f, 1.0f);
-		shaderObject.setVec3f("lightColor", 1.0f, 1.0f, 1.0f);
+		shaderObject.setMat4f("model", model);
+		shaderObject.setMat4f("view", view);
+		shaderObject.setMat4f("projection", projection);
 
 		glBindVertexArray(nVao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	
 
+
+		shaderLight.setMat4f("view", view);
+		shaderLight.setMat4f("projection", projection);
 		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(1.0, 1.0, 0.2f));
-		shaderLight.setMat4f("model", glm::value_ptr(model));
-		shaderLight.setMat4f("view", glm::value_ptr(view));
-		shaderLight.setMat4f("projection", glm::value_ptr(projection));
+		model = glm::scale(model, glm::vec3(0.2f));
+
+		shaderLight.setMat4f("model", model);
 		glBindVertexArray(nVaoLight);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 

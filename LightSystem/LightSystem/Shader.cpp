@@ -38,18 +38,18 @@ Shader::Shader(const char* vertex, const char* fragment) : m_nProgram(-1)
 	if (!iRet)
 	{
 		glGetShaderInfoLog(nShaderVertex, 512, nullptr, spLogMessage);
-		std::cout << "COMPILE VERTEX SHADER FAILED: " << spLogMessage << std::endl;
+		std::cout << "COMPILE VERTEX SHADER FAILED AT <" << vertex << "> ERROR MESSAGE:" << spLogMessage << std::endl;
 	}
 
 
 	unsigned int nShaderFrgment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(nShaderFrgment, 1, &spVertex, nullptr);
+	glShaderSource(nShaderFrgment, 1, &spFragment, nullptr);
 	glCompileShader(nShaderFrgment);
 	glGetShaderiv(nShaderFrgment, GL_COMPILE_STATUS, &iRet);
 	if (!iRet)
 	{
 		glGetShaderInfoLog(nShaderFrgment, 512, nullptr, spLogMessage);
-		std::cout << "COMPILE VERTEX SHADER FAILED: " << spLogMessage << std::endl;
+		std::cout << "COMPILE FRAGMENT SHADER FAILED AT <" << fragment << "> ERROR MESSAGE:" << spLogMessage << std::endl;
 	}
 
 	m_nProgram = glCreateProgram();
@@ -82,7 +82,12 @@ void Shader::setVec3f(const std::string& name, float v0, float v1, float v2)
 }
 void Shader::setMat4f(const std::string& name, float* valueList)
 {
-	glUniformMatrix4fv(glGetUniformLocation(m_nProgram, name.c_str()),1,GL_FALSE,valueList);
+	glUniformMatrix4fv(glGetUniformLocation(m_nProgram, name.c_str()), 1, GL_FALSE, valueList);
+}
+
+void Shader::setMat4f(const std::string& name, glm::mat4 mat)
+{
+	glUniformMatrix4fv(glGetUniformLocation(m_nProgram, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
 
