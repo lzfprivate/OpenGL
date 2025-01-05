@@ -9,13 +9,13 @@ uniform vec3 viewPos;
 
 in vec3 Normal;
 in vec3 FragPos;
+in vec2 texCoords;
 
 
 struct Material
 {
-    vec3 ambient;               //环境
-    vec3 diffuse;               //漫反射
-    vec3 specular;              //镜面
+    sampler2D diffuse;               //漫反射  修改成贴图
+    sampler2D specular;              //镜面    修改成贴图
     float shininess;            //光照强度
 };
 
@@ -33,21 +33,22 @@ uniform Light light;
 void main()
 {
     //环境光照
-    vec3 ambient = light.ambient * material.ambient;
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, texCoords));
 
     //漫反射光照
     vec3 normal = normalize(Normal);
     vec3 lightDir = normalize(lightPos - normal);
-    vec3 diffUse = material.diffuse * light.diffuse;
+    float diff = max(dot(lightDir, FragPos), 0.0f);
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, texCoords));
 
     //镜面反射
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
-    vec3 specular = light.specular * (spec * material.specular);
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, texCoords));
 
     //三个因素构成风式光照
-    vec3 result = ambient + diffUse + specular;
+    vec3 result = ambient + diffuse + specular;
 
     FragColor = vec4(result, 1.0f);
 }
