@@ -142,7 +142,7 @@ int main()
 	glEnableVertexAttribArray(0);
 
 	
-	unsigned int nDiffMap = loadTexture("./container.png");
+	unsigned int nDiffMap = loadTexture("./container2.png");
 	unsigned int nSpecMap = loadTexture("./container2_specular.png");
 
 	shaderObject.setValue1i("material.diffuse", 1);
@@ -272,9 +272,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 unsigned int loadTexture(const char* path)
 {
 	unsigned int nTexture;
-	glGenTextures(GL_TEXTURE_2D, &nTexture);
+	glGenTextures(1, &nTexture);
 	
-
 	int iWidth, iHeight,iChannel;
 	unsigned char* spData = stbi_load(path, &iWidth, &iHeight, &iChannel, 0);
 	if (spData)
